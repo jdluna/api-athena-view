@@ -1,0 +1,24 @@
+org: jhosepluna
+service: api-athena-view
+
+provider:
+  name: aws
+  runtime: python3.13
+  memorySize: 1024
+  timeout: 20
+  iam:
+    role: arn:aws:iam::946503249480:role/LabRole
+
+functions:
+  listar:
+    handler: handler.query_athena_view
+    events:
+    - http:
+        path: /athena-view
+        method: get
+        cors: true
+        integration: lambda
+    environment:
+      ATHENA_DB: "catastro"
+      ATHENA_VIEW: "view_predios_lotes"
+      S3_OUTPUT: "s3://final-jdlun/api-athena-results/"
