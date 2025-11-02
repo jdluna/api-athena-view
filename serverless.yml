@@ -18,6 +18,10 @@ functions:
         method: get
         cors: true
         integration: lambda
+    environment:
+      ATHENA_DB: "catastro"
+      ATHENA_VIEW: "view_predios_lotes"
+      S3_OUTPUT: "s3://final-jdlun/api-athena-results/"
   loteAggregation:
     handler: handler.lote_aggregation
     events:
