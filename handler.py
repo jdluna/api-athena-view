@@ -36,3 +36,32 @@ def query_athena_view(event, context):
         'statusCode': 200,
         'body': json.dumps(rows)
     }
+
+def lote_aggregation(event, context):
+    athena_response = query_athena_view(event, context)
+
+    # Step 1: Parse the response body
+    results_str = athena_response["body"]
+    results = json.loads(results_str)
+
+    # Step 2: Aggregate by codigo_lote
+    aggregation = {}
+    for record in results:
+        lote = record['codigo_lote']
+        area = float(record['area_terreno_m2'])
+        if lote not in aggregation:
+            aggregation[lote] = {'count_predios': 0, 'total_area_m2': 0.0}
+        aggregation[lote]['count_predios'] += 1
+        aggregation[lote]['total_area_m2'] += area
+
+    # Step 3: Prepare the output list
+    output = [
+        {'codigo_lote': k, 'count_predios': v['count_predios'], 'total_area_m2': v['total_area_m2']}
+        for k, v in aggregation.items()
+    ]
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(output),
+        "headers": {"Content-Type": "application/json"}
+    }
